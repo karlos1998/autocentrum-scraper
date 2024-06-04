@@ -21,6 +21,7 @@ public class ScraperService {
     public static final String baseUrl = "https://www.autocentrum.pl/";
 
     private final ScraperBrandService scraperBrandService;
+    private final ScraperCarModelDetailsService scraperCarModelDetailsService;
 
     private WebDriver setupWebDriver() {
 
@@ -45,6 +46,7 @@ public class ScraperService {
                 List<Model> carBrandModels = scraperBrandService.getBrandModelsFromWeb(driver, brand.getUrl());
                 for(Model model : carBrandModels) {
                     System.out.println(model.getModelUrl());
+                    scraperCarModelDetailsService.getAccurateCarModels(driver, model.getModelUrl());
                 }
             }
 
