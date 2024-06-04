@@ -1,6 +1,9 @@
 package it.letscode.autocentrum_scraper.scraper;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
+import it.letscode.autocentrum_scraper.brand.Brand;
+import it.letscode.autocentrum_scraper.model.Model;
+import lombok.AllArgsConstructor;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -12,7 +15,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class ScraperService {
+
+    public static final String baseUrl = "https://www.autocentrum.pl/";
+
+    private final ScraperBrandService scraperBrandService;
 
     private WebDriver setupWebDriver() {
 
@@ -30,20 +38,16 @@ public class ScraperService {
         WebDriver driver = setupWebDriver();
 
         try {
-            driver.get("https://www.autocentrum.pl/auta/");
 
-            WebElement selectElement = driver.findElement(By.cssSelector("select.select2"));
+            List<Brand> brands = scraperBrandService.getBrandsFromWeb(driver);
 
-            Select select = new Select(selectElement);
-            List<WebElement> optionsList = select.getOptions();
-
-            for (WebElement option : optionsList) {
-                String value = option.getAttribute("value");
-                String dataUrl = option.getAttribute("data-url");
-                String text = option.getText();
-
-                System.out.println(value + ", " + (dataUrl != null ? dataUrl : "") + ", " + text);
+            for(Brand brand : brands) {
+                List<Model> carBrandModels = scraperBrandService.getBrandModelsFromWeb(driver, brand.getUrl());
+                for(Model model : carBrandModels) {
+                    System.out.println(model.getModelUrl());
+                }
             }
+
         } finally {
             driver.quit();
         }
