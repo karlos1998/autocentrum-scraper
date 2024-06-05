@@ -1,4 +1,4 @@
-package it.letscode.autocentrum_scraper.model;
+package it.letscode.autocentrum_scraper.car_model;
 
 import it.letscode.autocentrum_scraper.brand.interfaces.Attribute;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class Model {
+public class CarModel {
     private String brandUrl;
 
     private String modelUrl;

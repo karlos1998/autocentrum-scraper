@@ -1,7 +1,7 @@
 package it.letscode.autocentrum_scraper.scraper;
 
 import it.letscode.autocentrum_scraper.brand.Brand;
-import it.letscode.autocentrum_scraper.model.Model;
+import it.letscode.autocentrum_scraper.car_model.CarModel;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
@@ -30,7 +30,7 @@ public class ScraperBrandService {
         }).toList();
     }
 
-    public List<Model> getBrandModelsFromWeb(WebDriver driver, String brandUrl) {
+    public List<CarModel> getBrandModelsFromWeb(WebDriver driver, String brandUrl) {
         System.out.println(brandUrl);
 
         driver.get(ScraperService.baseUrl + brandUrl);
@@ -39,7 +39,7 @@ public class ScraperBrandService {
         System.out.println("Znalezionych aut: " + selectElements.size());
 
          return selectElements.stream().map(item -> {
-            Model model = new Model();
+            CarModel model = new CarModel();
 
             model.setBrandUrl(brandUrl);
 

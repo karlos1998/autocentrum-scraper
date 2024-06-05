@@ -1,14 +1,12 @@
 package it.letscode.autocentrum_scraper.scraper;
 
 import it.letscode.autocentrum_scraper.brand.interfaces.Attribute;
-import it.letscode.autocentrum_scraper.model.Model;
-import org.checkerframework.checker.units.qual.A;
+import it.letscode.autocentrum_scraper.car_model.CarModel;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Attr;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ScraperCarModelDetailsService {
-    public void getAccurateCarModels(WebDriver driver, Model model) { //w kazydm modelu sa rozne generacje itp.
+    public void getAccurateCarModels(WebDriver driver, CarModel model) { //w kazydm modelu sa rozne generacje itp.
 
         String modelUrl = model.getModelUrl();
 
@@ -44,7 +42,7 @@ public class ScraperCarModelDetailsService {
             }
         }
 
-        List<Model> allModelSpecs = new ArrayList<>();
+        List<CarModel> allModelSpecs = new ArrayList<>();
 
         for(String subUrl : newSubLinks) {
             driver.get(subUrl);

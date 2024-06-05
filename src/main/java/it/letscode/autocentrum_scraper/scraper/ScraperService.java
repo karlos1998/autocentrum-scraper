@@ -2,14 +2,11 @@ package it.letscode.autocentrum_scraper.scraper;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import it.letscode.autocentrum_scraper.brand.Brand;
-import it.letscode.autocentrum_scraper.model.Model;
+import it.letscode.autocentrum_scraper.car_model.CarModel;
 import lombok.AllArgsConstructor;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.Select;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,8 +40,8 @@ public class ScraperService {
             List<Brand> brands = scraperBrandService.getBrandsFromWeb(driver);
 
             for(Brand brand : brands) {
-                List<Model> carBrandModels = scraperBrandService.getBrandModelsFromWeb(driver, brand.getUrl());
-                for(Model model : carBrandModels) {
+                List<CarModel> carBrandModels = scraperBrandService.getBrandModelsFromWeb(driver, brand.getUrl());
+                for(CarModel model : carBrandModels) {
                     System.out.println(model.getModelUrl());
                     scraperCarModelDetailsService.getAccurateCarModels(driver, model);
                 }
