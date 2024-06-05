@@ -62,10 +62,14 @@ public class ScraperCarModelDetailsService {
                 model.setAttributes(baseAttributes);
                 allModelSpecs.add(model);
             } else {
+                List<WebElement> gearboxConfigurations = driver.findElements(By.id("config-select option"));
+                Integer gearboxIndex = 0;
                 for(WebElement element : transmissions) {
                     List<Attribute> attributes = getAttributes(element);
                     baseAttributes.removeIf(attr -> attributes.stream().anyMatch(a -> a.getName().equals(attr.getName())));
                     baseAttributes.addAll(attributes);
+
+                    model.setGearbox(gearboxConfigurations.get(gearboxIndex++).getAttribute("innerText"));
 
                     model.setAttributes(baseAttributes);
                     allModelSpecs.add(model);

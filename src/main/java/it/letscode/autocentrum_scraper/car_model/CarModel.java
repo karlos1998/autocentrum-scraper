@@ -27,4 +27,6 @@ public class CarModel {
     private String name;
 
     private List<Attribute> attributes;
+
+    private String gearbox;
 }
