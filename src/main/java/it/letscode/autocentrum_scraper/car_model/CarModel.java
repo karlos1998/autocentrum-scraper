@@ -9,6 +9,9 @@ import java.util.List;
 @Getter
 @Setter
 public class CarModel {
+
+    private String Id;
+
     private String brandUrl;
 
     private String modelUrl;

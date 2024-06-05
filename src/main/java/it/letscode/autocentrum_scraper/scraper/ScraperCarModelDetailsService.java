@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class ScraperCarModelDetailsService {
-    public void getAccurateCarModels(WebDriver driver, CarModel model) { //w kazydm modelu sa rozne generacje itp.
+    public List<CarModel> getAccurateCarModels(WebDriver driver, CarModel model) { //w kazydm modelu sa rozne generacje itp.
 
         String modelUrl = model.getModelUrl();
 
@@ -71,6 +71,8 @@ public class ScraperCarModelDetailsService {
                 }
             }
         }
+
+        return allModelSpecs;
 
     }
 
