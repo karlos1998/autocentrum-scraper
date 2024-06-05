@@ -56,11 +56,12 @@ public class ScraperCarModelDetailsService {
 
             System.out.println("Nazwa: " + model.getName());
 
+            model.setFullModelUrl(subUrl);
+
             if(transmissions.isEmpty()) {
                 model.setAttributes(baseAttributes);
                 allModelSpecs.add(model);
             } else {
-//                System.out.println("Pobierame szczegoly dla roznych rodzajow napedow");
                 for(WebElement element : transmissions) {
                     List<Attribute> attributes = getAttributes(element);
                     baseAttributes.removeIf(attr -> attributes.stream().anyMatch(a -> a.getName().equals(attr.getName())));
@@ -78,9 +79,8 @@ public class ScraperCarModelDetailsService {
 
     private List<WebElement> getTypesOfTransmissions(WebDriver driver) {
 
-        WebElement configuration = driver.findElement(By.cssSelector(".engine-configuration"));
-
         try {
+            WebElement configuration = driver.findElement(By.cssSelector(".engine-configuration"));
             if(configuration.findElement(By.id("config-select")).isDisplayed()) {
                 return configuration.findElements(By.cssSelector(".config-box"));
             }
