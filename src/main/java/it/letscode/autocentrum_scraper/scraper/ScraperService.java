@@ -46,7 +46,7 @@ public class ScraperService {
                 List<Model> carBrandModels = scraperBrandService.getBrandModelsFromWeb(driver, brand.getUrl());
                 for(Model model : carBrandModels) {
                     System.out.println(model.getModelUrl());
-                    scraperCarModelDetailsService.getAccurateCarModels(driver, model.getModelUrl());
+                    scraperCarModelDetailsService.getAccurateCarModels(driver, model);
                 }
             }
 
