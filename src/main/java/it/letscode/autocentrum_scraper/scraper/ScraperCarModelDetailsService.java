@@ -62,7 +62,7 @@ public class ScraperCarModelDetailsService {
                 model.setAttributes(baseAttributes);
                 allModelSpecs.add(model);
             } else {
-                List<WebElement> gearboxConfigurations = driver.findElements(By.id("config-select option"));
+                List<WebElement> gearboxConfigurations = driver.findElements(By.cssSelector("select#config-select option"));
                 Integer gearboxIndex = 0;
                 for(WebElement element : transmissions) {
                     List<Attribute> attributes = getAttributes(element);
@@ -102,7 +102,8 @@ public class ScraperCarModelDetailsService {
             put("Długość", "length");
             put("Szerokość", "width");
             put("Wysokość", "height");
-            put("Długość", "length");
+            put("Rozstaw osi", "wheelbase");
+            put("Szerokość z lusterkami bocznymi", "widthWithSideGlosses");
             put("Liczba drzwi", "doorsCount");
             put("Minimalna masa własna pojazdu (bez obciążenia)", "baseMass");
             put("Rodzaj skrzyni", "gearboxType");
