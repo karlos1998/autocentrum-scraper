@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class CarModel {
+public class CarModel implements Cloneable {
 
     @Id
     private String Id;
@@ -29,4 +29,9 @@ public class CarModel {
     private List<Attribute> attributes;
 
     private String gearbox;
+
+    @Override
+    public CarModel clone() throws CloneNotSupportedException {
+        return (CarModel) super.clone();
+    }
 }

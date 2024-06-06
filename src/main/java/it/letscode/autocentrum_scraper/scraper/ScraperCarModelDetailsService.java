@@ -2,29 +2,35 @@ package it.letscode.autocentrum_scraper.scraper;
 
 import it.letscode.autocentrum_scraper.brand.interfaces.Attribute;
 import it.letscode.autocentrum_scraper.car_model.CarModel;
+import org.checkerframework.checker.units.qual.A;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class ScraperCarModelDetailsService {
-    public List<CarModel> getAccurateCarModels(WebDriver driver, CarModel model) { //w kazydm modelu sa rozne generacje itp.
+    public List<CarModel> getAccurateCarModels(WebDriver driver, CarModel templateModel) { //w kazydm modelu sa rozne generacje itp.
 
-        String modelUrl = model.getModelUrl();
+        String modelUrl = templateModel.getModelUrl();
 
         String fullModelUrl = String.format("%sdane-techniczne/%s", ScraperService.baseUrl, modelUrl);
         System.out.println(fullModelUrl);
         driver.get(fullModelUrl);
 
         List<String> subUrls = getAllSubLinks(driver);
+
+        System.out.println("SubUrls: " + subUrls.toArray().length);
+
+        int test = 0;
+        for(String subUrl : subUrls) {
+            if(test++ > 200) break;
+            System.out.println(subUrl);
+        }
 
         if(subUrls.isEmpty()) {
             subUrls.add(fullModelUrl);
@@ -48,31 +54,41 @@ public class ScraperCarModelDetailsService {
             driver.get(subUrl);
             System.out.println("-----> " + subUrl);
 
-            model.setName( driver.findElement(By.cssSelector("meta[property=\"og:title\"]")).getAttribute("content").replace("Dane techniczne ", ""));
+            CarModel carModel = null;
+            try {
+                carModel = templateModel.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new RuntimeException(e);
+            }
+
+            carModel.setName( driver.findElement(By.cssSelector("meta[property=\"og:title\"]")).getAttribute("content").replace("Dane techniczne ", ""));
 
             List<WebElement> transmissions = getTypesOfTransmissions(driver);
 
             List<Attribute> baseAttributes = getAttributes(driver.findElement(By.cssSelector("body")));
 
-            System.out.println("Nazwa: " + model.getName());
+            System.out.println("Nazwa: " + carModel.getName());
 
-            model.setFullModelUrl(subUrl);
+            carModel.setFullModelUrl(subUrl);
 
             if(transmissions.isEmpty()) {
-                model.setAttributes(baseAttributes);
-                allModelSpecs.add(model);
+                carModel.setAttributes(baseAttributes);
+                try {
+                    carModel.setGearbox(driver.findElement(By.cssSelector(".engine-configuration .primary-header")).getAttribute("innerText"));
+                } catch (NoSuchElementException ignored) {}
+                allModelSpecs.add(carModel);
             } else {
                 List<WebElement> gearboxConfigurations = driver.findElements(By.cssSelector("select#config-select option"));
-                Integer gearboxIndex = 0;
+                int gearboxIndex = 0;
                 for(WebElement element : transmissions) {
                     List<Attribute> attributes = getAttributes(element);
                     baseAttributes.removeIf(attr -> attributes.stream().anyMatch(a -> a.getName().equals(attr.getName())));
                     baseAttributes.addAll(attributes);
 
-                    model.setGearbox(gearboxConfigurations.get(gearboxIndex++).getAttribute("innerText"));
+                    carModel.setGearbox(gearboxConfigurations.get(gearboxIndex++).getAttribute("innerText"));
 
-                    model.setAttributes(baseAttributes);
-                    allModelSpecs.add(model);
+                    carModel.setAttributes(baseAttributes);
+                    allModelSpecs.add(carModel);
                 }
             }
         }
@@ -103,10 +119,54 @@ public class ScraperCarModelDetailsService {
             put("Szerokość", "width");
             put("Wysokość", "height");
             put("Rozstaw osi", "wheelbase");
+            put("Prześwit", "clearanceHeight");
+            put("Rozstaw kół - przód", "frontWheelSpacing");
+            put("Rozstaw kół - tył", "rearWheelSpacing");
             put("Szerokość z lusterkami bocznymi", "widthWithSideGlosses");
             put("Liczba drzwi", "doorsCount");
             put("Minimalna masa własna pojazdu (bez obciążenia)", "baseMass");
+            put("Maksymalna masa całkowita pojazdu (w pełni obciążonego)", "fullMass");
             put("Rodzaj skrzyni", "gearboxType");
+            put("Liczba miejsc", "seatsCount");
+            put("Średnica zawracania", "turningDiameter");
+            put("Promień skrętu", "turningRadius");
+            put("Maksymalna pojemność bagażnika (siedzenia złożone)", "maxTrunkCapacityWithSeatsFolded");
+            put("Minimalna pojemność bagażnika (siedzenia rozłożone)", "minTrunkCapacityWithSeatsUnfolded");
+            put("Odległość od oparcia fotela przedniego od kierownicy", "distanceFromFrontSeatBackrestToSteeringWheel");
+            put("Odległość od siedzenia przedniego do dachu", "distanceFromFrontSeatToRoof");
+            put("Długość siedzenia przedniego", "frontSeatLength");
+            put("Odległość od siedzenia tylnego do dachu", "distanceFromRearSeatToRoof");
+            put("Długość siedzenia tylnego", "rearSeatLength");
+            put("Całkowita długość wnętrza kabiny", "totalInteriorLength");
+            put("Całkowita wysokość wnętrza kabiny", "totalInteriorHeight");
+            put("Szerokość pomiędzy nadkolami", "widthBetweenWheelArches");
+            put("Długość z hakiem holowniczym", "lengthWithTowingHook");
+            put("Zwis przedni", "frontOverhang");
+            put("Zwis tylny", "rearOverhang");
+            put("Szerokość na wysokości podłokietników z tyłu", "widthAtRearArmrestHeight");
+            put("Dopuszczalne obciążenie dachu", "roofLoadCapacity");
+            put("Produkowany", "produced");
+            put("Pojemność skokowa", "engineDisplacement");
+            put("Typ silnika", "engineType");
+            put("Moc silnika", "enginePower");
+            put("Maksymalny moment obrotowy", "maximumTorque");
+            put("Montaż silnika", "engineMounting");
+            put("Umiejscowienie wałka rozrządu", "camshaftPosition");
+            put("Liczba cylindrów", "numberOfCylinders");
+            put("Układ cylindrów", "cylinderArrangement");
+            put("Liczba zaworów", "numberOfValves");
+            put("Stopień sprężania", "compressionRatio");
+            put("Zapłon", "ignition");
+            put("Typ wtrysku", "injectionType");
+            put("Rodzaj układu kierowniczego", "steeringSystemType");
+            put("Opony podstawowe", "standardTires");
+            put("Opony opcjonalne", "optionalTires");
+            put("Rozstaw śrub", "boltPattern");
+            put("Rodzaj hamulców (przód)", "frontBrakesType");
+            put("Rodzaj hamulców (tył)", "rearBrakesType");
+            put("Rodzaj zawieszenia (przód)", "frontSuspensionType");
+            put("Rodzaj zawieszenia (tył)", "rearSuspensionType");
+            put("Amortyzatory", "shockAbsorbers");
         }};
 
         for(WebElement row : rows) {
@@ -121,14 +181,34 @@ public class ScraperCarModelDetailsService {
         return attributes;
     }
 
+//    private List<String> getAllSubLinks(WebDriver driver) {
+//        return getAllSubLinks(driver, new ArrayList<>());
+//    }
+
     private List<String> getAllSubLinks(WebDriver driver) {
-        return getSubcategories(driver).stream().map(link -> {
+
+        //todo - rozwiazanie tymczasowe, ale nie wiem jak juz ogarnac te dupliakty...
+
+        List<String> subLinks = getAllSubLinks(driver, new ArrayList<>());
+        Set<String> uniqueSubLinks = new HashSet<>(subLinks);
+        return new ArrayList<>(uniqueSubLinks);
+    }
+
+    private List<String> getAllSubLinks(WebDriver driver, List<String> list) {
+
+        List<String> array = getSubcategories(driver);
+        list.addAll(array);
+
+        list.addAll(array.stream().map(link -> {
             driver.get(link);
-            return getSubcategories(driver);
-        }).flatMap(List::stream).collect(Collectors.toList());
+            return getAllSubLinks(driver, list);
+        }).flatMap(List::stream).collect(Collectors.toList()));
+
+        return list;
     }
 
     private List<String> getSubcategories(WebDriver driver) {
+        System.out.println("getSubcategories");
         List<WebElement> carGenerations = driver.findElements(By.cssSelector(".car-selector-box-row a.car-selector-box"));
         return carGenerations.stream().map(carGeneration -> carGeneration.getAttribute("href")).toList();
     }

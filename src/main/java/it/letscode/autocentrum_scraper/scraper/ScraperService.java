@@ -29,7 +29,7 @@ public class ScraperService {
     private final ScraperCarModelDetailsService scraperCarModelDetailsService;
     private final ScrapedBrandRepository scrapedBrandRepository;
 
-    private WebDriver setupWebDriver() {
+    public static WebDriver setupWebDriver() {
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
