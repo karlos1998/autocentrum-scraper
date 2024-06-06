@@ -14,4 +14,8 @@ public class CarModelService {
     public Page<CarModel> findAll(Pageable pageable) {
         return carModelRepository.findAll(pageable);
     }
+
+    public Page<CarModel> findByModelUrlStartingWith(String modelUrl, Pageable pageable) {
+        return carModelRepository.findByModelUrlStartingWith(modelUrl, pageable);
+    }
 }
