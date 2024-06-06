@@ -12,6 +12,10 @@ public class ScraperRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        scraperService.run();
+        if (args.length > 0 && "runScraper".equals(args[0])) {
+            scraperService.run();
+        } else {
+            System.out.println("No valid argument provided. Scraper will not run.");
+        }
     }
 }

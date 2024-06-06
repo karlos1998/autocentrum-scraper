@@ -13,6 +13,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -24,17 +25,16 @@ public class ScraperService {
     public static final String baseUrl = "https://www.autocentrum.pl/";
 
     private final CarModelRepository carModelRepository;
-    private final ScrapedBrandRepository scrapedBrandRepository;
-
     private final ScraperBrandService scraperBrandService;
     private final ScraperCarModelDetailsService scraperCarModelDetailsService;
+    private final ScrapedBrandRepository scrapedBrandRepository;
 
     private WebDriver setupWebDriver() {
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");
         options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage"); //todo chce to przetestowac. podobno do uzytku danych z normalnej przegladarki (moze sesja? :LD )
+        options.addArguments("--disable-dev-shm-usage");
 
         WebDriverManager.chromedriver().setup();
         return new ChromeDriver(options);
@@ -42,17 +42,15 @@ public class ScraperService {
 
     public void run() {
 
-        List<String> scrapedBrandsList = scrapedBrandRepository.findAll().stream().map(item -> item.getName()).toList(); //te ktore juz w pelni zescrapowalo
-
-        System.out.println(scrapedBrandsList.size());
-
 //        carModelRepository.deleteAll();
 //        scrapedBrandRepository.deleteAll();
 
+
         WebDriver driver = setupWebDriver();
 
+        // Pobranie listy zescrapowanych marek
+        List<String> scrapedBrandsList = scrapedBrandRepository.findAll().stream().map(ScrapedBrand::getName).toList();
         carModelRepository.deleteByBrandUrlNotIn(scrapedBrandsList);
-
 
         try {
             List<Brand> brands = scraperBrandService.getBrandsFromWeb(driver);
@@ -60,12 +58,12 @@ public class ScraperService {
             ExecutorService executorService = Executors.newFixedThreadPool(20);
 
             for (Brand brand : brands) {
-
                 if(scrapedBrandsList.contains(brand.getUrl())) {
                     continue;
                 }
 
                 List<CarModel> carBrandModels = scraperBrandService.getBrandModelsFromWeb(driver, brand.getUrl());
+                CountDownLatch latch = new CountDownLatch(carBrandModels.size());
 
                 for (CarModel model : carBrandModels) {
                     executorService.submit(() -> {
@@ -75,10 +73,12 @@ public class ScraperService {
                             carModelRepository.saveAll(carModels);
                         } finally {
                             localDriver.quit();
+                            latch.countDown();
                         }
                     });
                 }
 
+                latch.await();
                 scrapedBrandRepository.save(new ScrapedBrand(brand.getUrl()));
             }
 
@@ -92,8 +92,12 @@ public class ScraperService {
                 Thread.currentThread().interrupt();
             }
 
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
         } finally {
             driver.quit();
+            System.exit(0);
         }
     }
 }
