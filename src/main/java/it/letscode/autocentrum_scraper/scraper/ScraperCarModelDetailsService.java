@@ -71,6 +71,10 @@ public class ScraperCarModelDetailsService {
 
             carModel.setFullModelUrl(subUrl);
 
+            try {
+                carModel.setFullImageUrl(driver.findElement(By.cssSelector(".chosen-car img.part__photo__image")).getAttribute("src"));
+            } catch (NoSuchElementException ignored) {}
+
             if(transmissions.isEmpty()) {
                 carModel.setAttributes(baseAttributes);
                 try {
@@ -202,7 +206,7 @@ public class ScraperCarModelDetailsService {
         list.addAll(array.stream().map(link -> {
             driver.get(link);
             return getAllSubLinks(driver, list);
-        }).flatMap(List::stream).collect(Collectors.toList()));
+        }).flatMap(List::stream).toList());
 
         return list;
     }

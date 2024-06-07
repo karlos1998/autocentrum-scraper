@@ -58,14 +58,22 @@ public class ScraperService {
             ExecutorService executorService = Executors.newFixedThreadPool(20);
 
             for (Brand brand : brands) {
-                if(scrapedBrandsList.contains(brand.getUrl())) {
-                    continue;
-                }
+//                if(scrapedBrandsList.contains(brand.getUrl())) {
+//                    continue;
+//                }
 
                 List<CarModel> carBrandModels = scraperBrandService.getBrandModelsFromWeb(driver, brand.getUrl());
                 CountDownLatch latch = new CountDownLatch(carBrandModels.size());
 
                 for (CarModel model : carBrandModels) {
+
+                    if(carModelRepository.existsByModelUrl(model.getModelUrl())) {
+                        latch.countDown();
+                        continue;
+                    }
+
+                    System.out.println("Model Url: " + model.getModelUrl());
+
                     executorService.submit(() -> {
                         WebDriver localDriver = setupWebDriver();
                         try {

@@ -14,4 +14,6 @@ public interface CarModelRepository extends MongoRepository<CarModel, String> {
 
     @Query(value = "{ 'brandUrl': { '$nin': ?0 } }", delete = true)
     void deleteByBrandUrlNotIn(List<String> brandUrls);
+
+    Boolean existsByModelUrl(String modelUrl);
 }

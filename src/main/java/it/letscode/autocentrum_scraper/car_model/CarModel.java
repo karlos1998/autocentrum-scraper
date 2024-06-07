@@ -22,6 +22,8 @@ public class CarModel implements Cloneable {
 
     private String imageUrl;
 
+    private String fullImageUrl;
+
     private String title;
 
     private String name;
