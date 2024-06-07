@@ -29,8 +29,11 @@ public class CarModelController {
 
     @GetMapping
     public Page<CarModel> findAll(Pageable pageable,
-                                  @RequestParam(required = false) String modelUrl) {
-        if (modelUrl != null && !modelUrl.isEmpty()) {
+                                  @RequestParam(required = false) String modelUrl,
+                                  @RequestParam(required = false) String query) {
+        if (query != null && !query.isEmpty()) {
+            return carModelService.findByNameContainingAllWords(query, pageable);
+        } else if (modelUrl != null && !modelUrl.isEmpty()) {
             return carModelService.findByModelUrlStartingWith(modelUrl, pageable);
         } else {
             return carModelService.findAll(pageable);
